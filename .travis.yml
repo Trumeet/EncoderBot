@@ -2,10 +2,11 @@ services:
   - docker
 before_install:
   - echo "$DOCKER_PASSWORD" | docker login "$DOCKER_REGISTRY" -u "$DOCKER_USERNAME" --password-stdin
+  - VERSION=$(git rev-list --count HEAD)
 script:
-  - docker build -t "$DOCKER_REGISTRY"/"$TRAVIS_TAG":"$VERSION" .
+  - docker build -t "$DOCKER_REGISTRY"/"$DOCKER_IMAGE_NAME":"$VERSION" .
 deploy:
   - provider: script
-    script: docker push "$DOCKER_REGISTRY"/"$TRAVIS_TAG":"$VERSION"
+    script: docker push "$DOCKER_REGISTRY"/"$DOCKER_IMAGE_NAME":"$VERSION"
     on:
       tags: true
