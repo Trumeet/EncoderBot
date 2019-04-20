@@ -74,7 +74,7 @@ class EncoderBot(private val mToken: String,
                                 .setReplyToMessageId(update.message.messageId)
                                 .setText(strings.getString("qr_start")))
                         } else {
-                            val text = txt.substring(botCommandEntity.length)
+                            val text = txt.substring(botCommandEntity.length + 1)
                             if (text.isBlank()) {
                                 execute(SendMessage()
                                     .setChatId(update.message.chatId)
@@ -99,7 +99,7 @@ class EncoderBot(private val mToken: String,
                                 .setReplyToMessageId(update.message.messageId)
                                 .setText(strings.getString("b6_start")))
                         } else {
-                            val text = txt.substring(botCommandEntity.length)
+                            val text = txt.substring(botCommandEntity.length + 1)
                             if (text.isBlank()) {
                                 execute(SendMessage()
                                     .setChatId(update.message.chatId)
