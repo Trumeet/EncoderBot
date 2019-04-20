@@ -7,6 +7,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.net.URLEncoder
 import java.util.*
 
 
@@ -23,4 +24,5 @@ object Encoder {
         stream.close()
         return inputStream
     }
+    fun url(origin: String): String = URLEncoder.encode(origin, "UTF-8")
 }

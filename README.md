@@ -12,6 +12,7 @@ A [Telegram](https://telegram.org) Bot that allows you to encode your text in di
 
 * QR Code
 * Base64 (Inline mode is supported)
+* URL Encoding (Inline mode is supported)
 
 # License
 

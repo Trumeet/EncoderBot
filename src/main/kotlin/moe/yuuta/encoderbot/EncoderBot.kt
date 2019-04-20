@@ -115,6 +115,30 @@ class EncoderBot(private val mToken: String,
                             }
                         }
                     }
+                    txt.startsWith("/url") -> {
+                        if (botCommandEntity == null) {
+                            execute(SendMessage()
+                                .setChatId(update.message.chatId)
+                                .enableMarkdown(true)
+                                .setReplyToMessageId(update.message.messageId)
+                                .setText(strings.getString("url_start")))
+                        } else {
+                            val text = txt.substring(botCommandEntity.length + 1)
+                            if (text.isBlank()) {
+                                execute(SendMessage()
+                                    .setChatId(update.message.chatId)
+                                    .enableMarkdown(true)
+                                    .setReplyToMessageId(update.message.messageId)
+                                    .setText(strings.getString("url_start")))
+                            } else {
+                                execute(SendMessage()
+                                    .setChatId(update.message.chatId)
+                                    .setReplyToMessageId(update.message.messageId)
+                                    .enableMarkdown(true)
+                                    .setText("`${Encoder.url(text)}`"))
+                            }
+                        }
+                    }
                 }
             }
         } else if (update.hasCallbackQuery()) {
@@ -132,7 +156,6 @@ class EncoderBot(private val mToken: String,
         } else if (update.hasInlineQuery()) {
             if (update.inlineQuery.hasQuery()) {
                 val data = update.inlineQuery.query
-                val b6Result = Encoder.b6(data)
                 execute(AnswerInlineQuery()
                     .setInlineQueryId(update.inlineQuery.id)
                     .setResults(listOf(
@@ -140,7 +163,13 @@ class EncoderBot(private val mToken: String,
                             .setTitle(strings.getString("b6_name"))
                             .setId("b6_${user.id}_${update.inlineQuery.id}_${data.hashCode()}")
                             .setInputMessageContent(InputTextMessageContent()
-                                .setMessageText("`$b6Result`")
+                                .setMessageText("`${Encoder.b6(data)}`")
+                                .enableMarkdown(true)),
+                        InlineQueryResultArticle()
+                            .setTitle(strings.getString("url_name"))
+                            .setId("url_${user.id}_${update.inlineQuery.id}_${data.hashCode()}")
+                            .setInputMessageContent(InputTextMessageContent()
+                                .setMessageText("`${Encoder.url(data)}`")
                                 .enableMarkdown(true))
                     )))
             }
