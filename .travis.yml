@@ -1,0 +1,11 @@
+services:
+  - docker
+before_install:
+  - echo "$DOCKER_PASSWORD" | docker login "$DOCKER_REGISTRY" -u "$DOCKER_USERNAME" --password-stdin
+script:
+  - docker build -t "$DOCKER_REGISTRY"/"$TRAVIS_TAG":"$VERSION" .
+deploy:
+  - provider: script
+    script: docker push "$DOCKER_REGISTRY"/"$TRAVIS_TAG":"$VERSION"
+    on:
+      tags: true
