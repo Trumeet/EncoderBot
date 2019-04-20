@@ -35,82 +35,84 @@ class EncoderBot(private val mToken: String,
         val userLangCode = (user.languageCode ?: "en").replace("-", "_")
         val strings = ResourceBundle.getBundle("strings", Locale(userLangCode))
         if (update.hasMessage()) {
-            val txt = update.message.text
-            val entityStream = update.message.entities?.stream()
-                ?.filter {
-                    return@filter it.type == "bot_command"
-                }
-                ?.findFirst()
-            val botCommandEntity = if (entityStream != null &&
-                entityStream.isPresent) entityStream.get() else null
-            when {
-                txt == "/start" -> {
-                    val replyInline = InlineKeyboardMarkup()
-                    val rowsInline = ArrayList<List<InlineKeyboardButton>>()
-                    val rowInline = ArrayList<InlineKeyboardButton>()
-                    rowInline.add(InlineKeyboardButton()
-                        .setText(String(strings.getString("welcome_good").toByteArray(Charset.forName("UTF-8")), Charset.forName("UTF-8")))
-                        .setCallbackData("callback_welcome_good"))
-                    rowsInline.add(rowInline)
-                    replyInline.keyboard = rowsInline
-                    val reply = SendMessage()
-                        .setChatId(update.message.chatId)
-                        .setText(strings.getString("welcome"))
-                        .setReplyMarkup(replyInline)
-                    execute(reply)
-                }
-                txt == "/help" -> {
-                    execute(SendMessage()
-                        .setChatId(update.message.chatId)
-                        .setText(strings.getString("help"))
-                        .setReplyToMessageId(update.message.messageId))
-                }
-                txt.startsWith("/qr") -> {
-                    if (botCommandEntity == null) {
+            if (update.message.hasText()) {
+                val txt = update.message.text
+                val entityStream = update.message.entities?.stream()
+                    ?.filter {
+                        return@filter it.type == "bot_command"
+                    }
+                    ?.findFirst()
+                val botCommandEntity = if (entityStream != null &&
+                    entityStream.isPresent) entityStream.get() else null
+                when {
+                    txt == "/start" -> {
+                        val replyInline = InlineKeyboardMarkup()
+                        val rowsInline = ArrayList<List<InlineKeyboardButton>>()
+                        val rowInline = ArrayList<InlineKeyboardButton>()
+                        rowInline.add(InlineKeyboardButton()
+                            .setText(String(strings.getString("welcome_good").toByteArray(Charset.forName("UTF-8")), Charset.forName("UTF-8")))
+                            .setCallbackData("callback_welcome_good"))
+                        rowsInline.add(rowInline)
+                        replyInline.keyboard = rowsInline
+                        val reply = SendMessage()
+                            .setChatId(update.message.chatId)
+                            .setText(strings.getString("welcome"))
+                            .setReplyMarkup(replyInline)
+                        execute(reply)
+                    }
+                    txt == "/help" -> {
                         execute(SendMessage()
                             .setChatId(update.message.chatId)
-                            .enableMarkdown(true)
-                            .setReplyToMessageId(update.message.messageId)
-                            .setText(strings.getString("qr_start")))
-                    } else {
-                        val text = txt.substring(botCommandEntity.length)
-                        if (text.isBlank()) {
+                            .setText(strings.getString("help"))
+                            .setReplyToMessageId(update.message.messageId))
+                    }
+                    txt.startsWith("/qr") -> {
+                        if (botCommandEntity == null) {
                             execute(SendMessage()
                                 .setChatId(update.message.chatId)
                                 .enableMarkdown(true)
                                 .setReplyToMessageId(update.message.messageId)
                                 .setText(strings.getString("qr_start")))
                         } else {
-                            val stream = Encoder.qr(text)
-                            execute(SendPhoto()
-                                .setChatId(update.message.chatId)
-                                .setReplyToMessageId(update.message.messageId)
-                                .setPhoto("@${mID}_qr_${System.nanoTime()}.png", stream))
-                            stream.close()
+                            val text = txt.substring(botCommandEntity.length)
+                            if (text.isBlank()) {
+                                execute(SendMessage()
+                                    .setChatId(update.message.chatId)
+                                    .enableMarkdown(true)
+                                    .setReplyToMessageId(update.message.messageId)
+                                    .setText(strings.getString("qr_start")))
+                            } else {
+                                val stream = Encoder.qr(text)
+                                execute(SendPhoto()
+                                    .setChatId(update.message.chatId)
+                                    .setReplyToMessageId(update.message.messageId)
+                                    .setPhoto("@${mID}_qr_${System.nanoTime()}.png", stream))
+                                stream.close()
+                            }
                         }
                     }
-                }
-                txt.startsWith("/b6") -> {
-                    if (botCommandEntity == null) {
-                        execute(SendMessage()
-                            .setChatId(update.message.chatId)
-                            .enableMarkdown(true)
-                            .setReplyToMessageId(update.message.messageId)
-                            .setText(strings.getString("b6_start")))
-                    } else {
-                        val text = txt.substring(botCommandEntity.length)
-                        if (text.isBlank()) {
+                    txt.startsWith("/b6") -> {
+                        if (botCommandEntity == null) {
                             execute(SendMessage()
                                 .setChatId(update.message.chatId)
                                 .enableMarkdown(true)
                                 .setReplyToMessageId(update.message.messageId)
                                 .setText(strings.getString("b6_start")))
                         } else {
-                            execute(SendMessage()
-                                .setChatId(update.message.chatId)
-                                .setReplyToMessageId(update.message.messageId)
-                                .enableMarkdown(true)
-                                .setText("`${Encoder.b6(text)}`"))
+                            val text = txt.substring(botCommandEntity.length)
+                            if (text.isBlank()) {
+                                execute(SendMessage()
+                                    .setChatId(update.message.chatId)
+                                    .enableMarkdown(true)
+                                    .setReplyToMessageId(update.message.messageId)
+                                    .setText(strings.getString("b6_start")))
+                            } else {
+                                execute(SendMessage()
+                                    .setChatId(update.message.chatId)
+                                    .setReplyToMessageId(update.message.messageId)
+                                    .enableMarkdown(true)
+                                    .setText("`${Encoder.b6(text)}`"))
+                            }
                         }
                     }
                 }
